@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey
-from db.database import Base
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, Float, Date, JSON, ARRAY
+
+from sqlalchemy.orm import relationship, declarative_base
+Base = declarative_base()
 
 class User(Base):
     __tablename__ = "users"
@@ -16,28 +17,29 @@ class Ad(Base):
     __tablename__ = "ads"
     id = Column(Integer, primary_key=True, index=True)
 
-    user_id = Cgit olumn(Integer, ForeignKey("users.id"))
-    description = Column(String, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    title = Column(String, nullable=False)
 
     type = Column(String, nullable=False)  # "gesucht" oder "angebot"
-    kaltmiete = Column(Float, nullable=True)
-    nebenkosten = Column(Float, nullable=True)
-    raumflaeche = Column(Float, nullable=True)  # in m²
+    kaltmiete = Column(String, nullable=True)
+    nebenkosten = Column(String, nullable=True)
+    raumflaeche = Column(String, nullable=True)  # in m²
 
     stadt = Column(String, nullable=True)
     anmeldung_moeglich = Column(Boolean, default=False)
 
     vermietung_art = Column(String, nullable=False)  # "WG", "Wohnung", "Haus", "Parkplatz"
 
-    start_date = Column(Date, nullable=True)
-    end_date = Column(Date, nullable=True)
+    start_date = Column(String, nullable=True)
+    end_date = Column(String, nullable=True)
 
     bilder = Column(Text, nullable=True)  # JSON-String: ["file_id1","file_id2"]
 
     approved = Column(Boolean, default=False)
-    telegram_message_id = Column(String, nullable=True)
+    telegram_message_id = Column(JSON, nullable=True)
 
     user = relationship("User")
+
 
 
 # ----------------------------
