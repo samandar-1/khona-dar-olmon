@@ -6,9 +6,10 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
-    telegram_id = Column(String, unique=True, index=True)
-    username = Column(String)
-    is_admin = Column(Boolean, default=False)
+    telegram_id = Column(Integer, unique=True, index=True, nullable=False)
+    username = Column(String(64), nullable=True)
+    first_name = Column(String(128))
+    last_name = Column(String(128))
 
     ads = relationship("Ad", back_populates="user")
     ad_requests = relationship("AdRequest", back_populates="user")

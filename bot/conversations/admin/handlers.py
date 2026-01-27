@@ -3,21 +3,23 @@ from telegram.ext import ContextTypes, CallbackQueryHandler
 from db.controllers.ad_controller import approve_ad, reject_ad, get_ad_by_id
 from db.controllers.ad_request_controller import get_pending
 from db.models import AdRequest, Ad
+from sqlalchemy import delete
+from db.database import AsyncSessionLocal
 from dotenv import load_dotenv
 import os
 import json
 from telegram import InputMediaPhoto
 
 load_dotenv()
-ADMIN_ID = int(os.getenv("ADMIN_ID"))  # deine Telegram-User-ID(s)
+ADMIN_IDS = [int(x) for x in os.getenv("ADMIN_IDS", "").split(",") if x] # deine Telegram-User-ID(s)
 CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
 CHANNEL_USERNAME = str(os.getenv("CHANNEL_USERNAME"))
 
 # Admin bekommt neue AdRequests
 async def admin_check_ads(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
-    print("Ad ID: ", type(ADMIN_ID))
-    if user_id != ADMIN_ID:
+    # print("Ad ID: ", type(ADMIN_ID))
+    if user_id not in ADMIN_IDS:
         await update.message.reply_text("❌ Du bist kein Admin!")
         return
 
@@ -70,10 +72,12 @@ async def admin_ad_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 {ad.raumflaeche} m², {ad.stadt}
                 Kaltmiete: {ad.kaltmiete}, NK: {ad.nebenkosten}
                 Start: {ad.start_date}, Ende: {ad.end_date}
-                Test: {ad.user.username}
                 
-                <a href="tg://user?id={ad.user_id}">Kontakt</a>
+                
+                <a href="tg://user?id={ad.user_id}">Kontakt</a> 
                 """
+            # if ad.user.first_name:
+
 
             bilder = json.loads(ad.bilder) if ad.bilder else []
 
@@ -99,8 +103,10 @@ async def admin_ad_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await query.edit_message_text("✅ Freigegeben")
 
         elif action == "reject":
-            await session.execute(text("DELETE FROM ad_requests WHERE ad_id=:id"), {"id": ad_id})
-            await session.execute(text("DELETE FROM ads WHERE id=:id"), {"id": ad_id})
+
+
+            await session.execute(delete(AdRequest).where(AdRequest.ad_id == ad_id))
+            await session.execute(delete(Ad).where(Ad.id == ad_id))
             await session.commit()
 
             await context.bot.send_message(ad.user_id, f"❌ Anzeige '{ad.title}' wurde abgelehnt")

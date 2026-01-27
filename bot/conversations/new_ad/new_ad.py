@@ -1,5 +1,10 @@
 from enum import Enum, auto
 
+from sqlalchemy import select
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
+from db.models import User  # your User model
 from telegram import Update
 from telegram.ext import ContextTypes
 from .states import NewAdState
@@ -43,3 +48,47 @@ async def new_ad_title(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     return NewAdState.TYPE  # noch leer, kommt als nächstes
 
+
+
+
+async def save_or_update_user(session: AsyncSession, telegram_user):
+    """
+    Save a new user or update existing user data.
+
+    Parameters:
+        session (AsyncSession): async db session
+        telegram_user (telegram.User): object from update.effective_user
+
+    Returns:
+        User: the User instance
+    """
+    # Try to find existing user
+    stmt = select(User).where(User.telegram_id == telegram_user.id)
+    result = await session.execute(stmt)
+    user = result.scalars().first()
+
+    if user:
+        # Update fields if user exists
+        user.username = telegram_user.username
+        user.first_name = telegram_user.first_name
+        user.last_name = telegram_user.last_name
+    else:
+        # Create new user
+        user = User(
+            telegram_id=telegram_user.id,
+            username=telegram_user.username,
+            first_name=telegram_user.first_name,
+            last_name=telegram_user.last_name
+        )
+        session.add(user)
+
+    try:
+        await session.commit()
+    except IntegrityError:
+        await session.rollback()
+        # rare race condition, fetch again
+        stmt = select(User).where(User.telegram_id == telegram_user.id)
+        result = await session.execute(stmt)
+        user = result.scalars().first()
+
+    return user

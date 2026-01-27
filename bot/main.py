@@ -29,6 +29,7 @@ from bot.conversations.new_ad.handlers import (
 from bot.conversations.my_ads.handlers import (
     show_my_ads,
     delete_ad_callback,
+    delete_ad_handler
 )
 
 from bot.conversations.new_ad.states import NewAdState
@@ -75,6 +76,7 @@ async def set_commands(app):
 # =====================
 app.add_handler(CommandHandler("admin_ads", admin_check_ads))
 app.add_handler(CommandHandler("show_my_ads", show_my_ads))
+app.add_handler(delete_ad_handler)
 app.add_handler(CommandHandler("start", new_ad_start))
 app.add_handler(CallbackQueryHandler(admin_ad_callback, pattern="^(approve|reject):"))
 

@@ -1,10 +1,11 @@
 import json
 from telegram.ext import ConversationHandler
-
+from db.database import AsyncSessionLocal
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from datetime import datetime
 from .states import NewAdState
+from .new_ad import save_or_update_user
 from db.controllers.ad_controller import create_ad # unsere DB-Funktion
 from db.controllers import ad_request_controller
 from db.models import AdRequest
@@ -182,8 +183,14 @@ async def new_ad_bilder(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Anzeige abschließen
 async def new_ad_finish(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
+    tg_user = update.effective_user
+    user_id = tg_user.id
     data = context.user_data.copy()
+
+    # ✅ User speichern / updaten
+    async with AsyncSessionLocal() as session:
+        user = await save_or_update_user(session, update.effective_user)
+        print(user.id, user.username)
 
     # DB speichern
     ad = await create_ad(
