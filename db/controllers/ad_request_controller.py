@@ -1,7 +1,7 @@
 from db.database import AsyncSessionLocal
 from sqlalchemy.future import select
 from db.models import AdRequest, Ad
-
+import json
 async def create_ad_request(user_id: int, ad_id: int, action: str):
     async with AsyncSessionLocal() as session:
         req = AdRequest(
@@ -16,31 +16,27 @@ async def create_ad_request(user_id: int, ad_id: int, action: str):
         await session.refresh(req)
         return req
 
-async def approve_ad_request(request_id: int):
+# -------- APPROVE AD ----------
+async def approve_ad(ad_id: int, telegram_msg_ids: list):
     async with AsyncSessionLocal() as session:
-        req = await session.get(AdRequest, request_id)
-        if not req:
+        ad = await session.get(Ad, ad_id)
+        if not ad:
             return None
 
-        req.status = "approved"
-
-        if req.ad_id:
-            ad = await session.get(Ad, req.ad_id)
-            if ad:
-                ad.approved = True
+        ad.approved = True
+        ad.telegram_message_id = json.dumps(telegram_msg_ids)
 
         await session.commit()
-        return req
+        return ad
 
-async def reject_ad_request(request_id: int):
+
+# -------- REJECT AD ----------
+async def reject_ad(ad_id: int):
     async with AsyncSessionLocal() as session:
-        req = await session.get(AdRequest, request_id)
-        if not req:
-            return None
-
-        req.status = "rejected"
+        await session.execute(delete(AdRequest).where(AdRequest.ad_id == ad_id))
+        await session.execute(delete(Ad).where(Ad.id == ad_id))
         await session.commit()
-        return req
+
 
 async def get_pending():
     async with AsyncSessionLocal() as session:

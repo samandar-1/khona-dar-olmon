@@ -5,9 +5,9 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from datetime import datetime
 from .states import NewAdState
-from .new_ad import save_or_update_user
-from db.controllers.ad_controller import create_ad # unsere DB-Funktion
-from db.controllers import ad_request_controller
+from db.controllers.ad_controller import create_ad  # unsere DB-Funktion
+from db.controllers.ad_request_controller import create_ad_request
+from db.controllers.user_controller import save_or_update_user
 from db.models import AdRequest
 
 # Schritt 1: /new_ad starten
@@ -184,17 +184,14 @@ async def new_ad_bilder(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # Anzeige abschließen
 async def new_ad_finish(update: Update, context: ContextTypes.DEFAULT_TYPE):
     tg_user = update.effective_user
-    user_id = tg_user.id
     data = context.user_data.copy()
 
-    # ✅ User speichern / updaten
-    async with AsyncSessionLocal() as session:
-        user = await save_or_update_user(session, update.effective_user)
-        print(user.id, user.username)
+    # Save user
+    user = await save_or_update_user(tg_user)
 
-    # DB speichern
+    # Save ad
     ad = await create_ad(
-        user_id=user_id,
+        user_id=user.telegram_id,
         title=data["title"],
         vermietung_art=data["vermietung_art"],
         type=data["type"],
@@ -206,16 +203,13 @@ async def new_ad_finish(update: Update, context: ContextTypes.DEFAULT_TYPE):
         start_date=data.get("start_date"),
         end_date=data.get("end_date"),
         bilder=json.dumps(data.get("bilder", [])),
-        approved=False  # wird vom Admin freigegeben
-
+        approved=False
     )
 
-    # AdRequest für Admin-Freigabe erstellen
-    await ad_request_controller.create_ad_request(user_id=user_id, ad_id=ad.id, action="create")
+    # Create request
+    await create_ad_request(user_id=user.telegram_id, ad_id=ad.id, action="create")
 
-
-
-    await update.message.reply_text("✅ Anzeige gespeichert! Admin wird sie prüfen und freigeben.")
+    await update.message.reply_text("✅ Anzeige gespeichert! Admin prüft sie.")
     context.user_data.clear()
     return ConversationHandler.END
 
