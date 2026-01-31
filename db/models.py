@@ -11,7 +11,7 @@ class User(Base):
     first_name = Column(String(128))
     last_name = Column(String(128))
 
-    ads = relationship("Ad", back_populates="user")
+    ads = relationship("Ad", back_populates="user", cascade="all, delete")
     ad_requests = relationship("AdRequest", back_populates="user")
 
 class Ad(Base):
@@ -39,7 +39,7 @@ class Ad(Base):
     approved = Column(Boolean, default=False)
     telegram_message_id = Column(JSON, nullable=True)
 
-    user = relationship("User")
+    user = relationship("User", back_populates="ads", lazy="selectin")
 
 
 

@@ -1,5 +1,9 @@
 from enum import Enum, auto
 
+
+MAX_ADS_PER_USER = 3
+
+
 class NewAdState(Enum):
     TITLE = auto()
     VERMIETUNG_ART = auto()
@@ -13,3 +17,4 @@ class NewAdState(Enum):
     END_DATE = auto()
     BILDER = auto()
     CONFIRM = auto()
+

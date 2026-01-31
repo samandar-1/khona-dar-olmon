@@ -32,3 +32,6 @@ async def save_or_update_user(telegram_user):
             user = result.scalars().first()
 
         return user
+
+
+
