@@ -101,6 +101,7 @@ async def admin_ad_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await approve_ad(ad_id, msg_ids)
 
         link = f"https://t.me/{CHANNEL_USERNAME}/{msg_ids[0]}"
+
         await context.bot.send_message(ad.user.telegram_id, f"{AdminText.YOUR_AD_APPROVED} {link}")
         await query.edit_message_text("✅ Freigegeben")
 

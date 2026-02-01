@@ -34,13 +34,21 @@ def get_contact_text(user):
 def bool_to_text(val):
     return escape(f"{NewAdText.ANMELDUNG_YES}" if val else f"{NewAdText.ANMELDUNG_NO}")
 
-def hashtag_last_word(text: str) -> str:
+def hashtag_2nd_word(text: str) -> str:
     parts = text.strip().split()
 
     if not parts:
         return text  # leerer String
+    elif len(parts) < 2:
+        return "#"+text
 
-    parts[-1] = f"#{parts[-1]}"
+    try:
+        second = parts[1]
+
+        parts[1] = f"#{second}"
+    except Exception as e:
+        print(e)
+
     return " ".join(parts)
 
 
@@ -48,7 +56,7 @@ async def generate_ad_text(ad, incl_status=False):
     contact_name = get_contact_text(ad.user)
 
     text = f"""
-<b>{escape(hashtag_last_word(ad.vermietung_art))} | {escape(hashtag_last_word(ad.type.upper()))}</b>
+<b>{escape(hashtag_2nd_word(ad.vermietung_art))} | {escape(hashtag_2nd_word(ad.type.upper()))}  ID: {ad.id}</b>
 
 <b>{escape(GeneralText.STADT)}:</b> #{escape(ad.stadt) or '-'}
 <b>{escape(GeneralText.FLAECHE)}:</b> {escape(ad.raumflaeche) or '-'} m²
@@ -73,4 +81,6 @@ async def generate_ad_text(ad, incl_status=False):
             text += escape(f"🔗Link: {link}")
         else:
             text += escape(f"\n\n⏳ {GeneralText.STATUS}: {GeneralText.STATUS_PENDING}")
+    else:
+        text += f'\n\n📢 <a href="https://t.me/{CHANNEL_USERNAME}">Xoнa дар Олмон. Abbonieren</a>'
     return text

@@ -1,7 +1,7 @@
 from enum import Enum, auto
 
 
-MAX_ADS_PER_USER = 3
+MAX_ADS_PER_USER = 5
 
 
 class NewAdState(Enum):
