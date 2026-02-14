@@ -72,7 +72,7 @@ async def new_ad_type_callback(update: Update, context: ContextTypes.DEFAULT_TYP
     query = update.callback_query
     await query.answer()
     context.user_data["vermietung_art"] = query.data
-    await query.edit_message_text(f"{NewAdText.SELECTED_VERMIETUNG_ART}: {query.data}")
+    await query.edit_message_text(f"{NewAdText.SELECTED_VERMIETUNG_ART} {query.data}")
     # Nächster Schritt: Anzeige-Typ
     return await new_ad_type_choice(update, context)
 
