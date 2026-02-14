@@ -3,11 +3,13 @@ from bot.strings import GeneralText, NewAdText
 from html import escape
 import os
 from bot import utils
+from telegram.constants import ChatMemberStatus
 from dotenv import load_dotenv
+
 
 load_dotenv()
 CHANNEL_USERNAME = str(os.getenv("CHANNEL_USERNAME"))
-
+CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
 
 async def telegram_message_exists(bot, chat_id, message_id):
     try:
@@ -84,3 +86,16 @@ async def generate_ad_text(ad, incl_status=False):
     else:
         text += f'\n\n📢 <a href="https://t.me/{CHANNEL_USERNAME}">Xoнa дар Олмон. Abbonieren</a>'
     return text
+
+
+async def is_user_subscribed(bot, user_id: int) -> bool:
+    try:
+        member = await bot.get_chat_member(CHANNEL_ID, user_id)
+        print("test__________________________________________________")
+        return member.status in (
+            ChatMemberStatus.MEMBER,
+            ChatMemberStatus.ADMINISTRATOR,
+            ChatMemberStatus.OWNER,
+        )
+    except:
+        return False

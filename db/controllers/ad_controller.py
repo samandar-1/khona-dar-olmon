@@ -25,6 +25,17 @@ async def get_ad(ad_id: int):
         return result.scalar_one_or_none()
 
 
+# -------- GET approved ads --------
+async def get_approved_ads():
+    async with AsyncSessionLocal() as session:
+        result = await session.execute(
+            select(Ad)
+            .options(selectinload(Ad.user))
+            .where(Ad.approved == 1)
+        )
+        return result.scalars().all()
+
+
 # -------- GET USER ADS --------
 async def get_user_ads(user_id: int):
     async with AsyncSessionLocal() as session:

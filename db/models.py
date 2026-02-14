@@ -5,7 +5,7 @@ Base = declarative_base()
 
 class User(Base):
     __tablename__ = "users"
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     telegram_id = Column(Integer, unique=True, index=True, nullable=False)
     username = Column(String(64), nullable=True)
     first_name = Column(String(128))
@@ -16,7 +16,7 @@ class User(Base):
 
 class Ad(Base):
     __tablename__ = "ads"
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
 
     user_id = Column(Integer, ForeignKey("users.id"))
     title = Column(String, nullable=False)
@@ -48,7 +48,7 @@ class Ad(Base):
 # ----------------------------
 class AdRequest(Base):
     __tablename__ = "ad_requests"
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
 
     user_id = Column(Integer, ForeignKey("users.id"))
     ad_id = Column(Integer, ForeignKey("ads.id"), nullable=True)  # falls Änderung einer bestehenden Anzeige

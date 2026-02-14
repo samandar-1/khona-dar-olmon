@@ -10,14 +10,32 @@ from db.controllers.ad_request_controller import create_ad_request
 from db.controllers.user_controller import save_or_update_user
 from db.controllers.ad_controller import get_user_ads, get_user_id_by_telegram, count_user_ads
 from db.models import AdRequest
-# from bot.strings import General, NewAd
-from bot.utils import bool_to_text
+from bot.utils import bool_to_text, is_user_subscribed
 from bot.strings import GeneralText, NewAdText
+import os
+from dotenv import load_dotenv
+
+
+load_dotenv()
+CHANNEL_USERNAME = str(os.getenv("CHANNEL_USERNAME"))
 
 
 # Schritt 1: /new_ad starten
 async def new_ad_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     tg_id = update.effective_user.id
+    subscribed = await is_user_subscribed(context.bot, tg_id)
+    if not subscribed:
+        keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton(GeneralText.SUBSCRIBE_TO_CHANNEL, url=f"https://t.me/{CHANNEL_USERNAME}")],
+            [InlineKeyboardButton(GeneralText.SUBSCRIBED_TO_CHANNEL, callback_data="check_sub")]
+        ])
+
+        await update.message.reply_text(
+            GeneralText.SUBSCRIBE_INFO,
+            reply_markup=keyboard
+        )
+        return ConversationHandler.END
+
     user_id = await get_user_id_by_telegram(tg_id)
 
     ads_count = await count_user_ads(user_id)
@@ -37,6 +55,17 @@ async def new_ad_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text(NewAdText.SELECT_VERMIETUNG_ART, reply_markup=reply_markup)
     return NewAdState.VERMIETUNG_ART
+
+
+async def check_subscription_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+
+    user_id = query.from_user.id
+    if await is_user_subscribed(context.bot, user_id):
+        await query.message.reply_text(GeneralText.THANKS_FOR_SUBSCRIPTION)
+    else:
+        await query.message.reply_text(GeneralText.STILL_NOT_SUBSCRIBED)
 
 
 async def new_ad_type_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
