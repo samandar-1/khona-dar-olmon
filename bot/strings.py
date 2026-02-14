@@ -8,7 +8,7 @@ class GeneralText:
     STADT = "📍 Шаҳр"
     FLAECHE = "📐 Масоҳат"
     KALTMIETE = "💰 Kaltmiete"
-    NEBENKOSTEN = "💸 Хароҷоти иловагӣ"
+    NEBENKOSTEN = "💸 Nebenkosten"
     START = "➡️ Кӯчидан мумкин аз"
     ENDE = "⬅️ Дастрас то"
     ANMELDUNG = "📝 Anmeldung"
