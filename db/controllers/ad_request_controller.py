@@ -1,5 +1,7 @@
 from db.database import AsyncSessionLocal
 from sqlalchemy.future import select
+from sqlalchemy import delete
+
 from db.models import AdRequest, Ad
 import json
 async def create_ad_request(user_id: int, ad_id: int, action: str):
