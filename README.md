@@ -1,14 +1,13 @@
 # khona-dar-olmon
-Telegram-Bot für Wohnungen &amp; Zimmer in Deutschland (mit Admin-Freigabe) in tadschikischer und deutscher Sprache
-- Admin-Freigabe für neue oder bearbeitete Anzeigen
+Telegram-Bot für Wohnungen &amp; Zimmer in Deutschland (mit Admin-Freigabe) in tadschikischer Sprache
+- Admin-Freigabe für neue Anzeigen
 - Anzeigen werden im Kanal veröffentlicht
-- Multi-User Support
 
 ## Installation
 1. Clone Repo
 ```bash
-git clone https://github.com/<DeinUsername>/khona-de-bot.git
-cd khona-de-bot
+git clone https://github.com/samandar-1/khona-dar-olmon.git
+cd khona-dar-olmon
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
