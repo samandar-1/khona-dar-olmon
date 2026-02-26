@@ -13,11 +13,9 @@ from db.models import AdRequest
 from bot.utils import bool_to_text, is_user_subscribed
 from bot.strings import GeneralText, NewAdText
 import os
-from dotenv import load_dotenv
+from config.config import Config
 
-
-load_dotenv()
-CHANNEL_USERNAME = str(os.getenv("CHANNEL_USERNAME"))
+CHANNEL_USERNAME = Config.CHANNEL_USERNAME
 
 
 # Schritt 1: /new_ad starten

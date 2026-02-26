@@ -1,24 +1,44 @@
-import asyncio
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from db.models import Base
-import os
+from config.config import Config
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATABASE_URL = f"sqlite+aiosqlite:///{os.path.join(BASE_DIR, 'db.sqlite3')}"
-
-engine = create_async_engine(DATABASE_URL, echo=True)
+engine = None
+AsyncSessionLocal = None
 
 
-# Hier erzeugen wir AsyncSessionLocal, damit wir später DB-Zugriffe machen können
-AsyncSessionLocal = sessionmaker(
-    engine,
-    expire_on_commit=False,
-    class_=AsyncSession
-)
+def init_engine():
+    global engine, AsyncSessionLocal
+
+    if not Config.DB_PATH:
+        raise RuntimeError("DB_PATH not set")
+
+    DATABASE_URL = f"sqlite+aiosqlite:///{Config.DB_PATH}"
+
+    engine = create_async_engine(
+        DATABASE_URL,
+        echo=True,
+        future=True
+    )
+
+    AsyncSessionLocal = sessionmaker(
+        bind=engine,
+        class_=AsyncSession,
+        expire_on_commit=False
+    )
+
+
+def get_session():
+    if AsyncSessionLocal is None:
+        raise RuntimeError("DB nicht initialisiert. init_engine() wurde nicht aufgerufen.")
+
+    return AsyncSessionLocal()
 
 async def init_db():
+    global engine
+
+    if engine is None:
+        init_engine()
+
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-
-

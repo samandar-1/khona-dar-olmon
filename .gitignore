@@ -135,7 +135,8 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+config/config_uz.env
+config/config_tj.env
 .envrc
 .venv
 env/
@@ -211,5 +212,7 @@ __pycache__/
 *.pyc
 *.pyo
 *.sqlite
-.env
+config/config_uz.env
 bot.db
+db/tajik.sqlite3
+db/uzbek.sqlite3

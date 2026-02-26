@@ -7,15 +7,14 @@ from db.database import AsyncSessionLocal
 from bot.strings import AdminText, GeneralText
 from bot import utils
 from sqlalchemy import delete
-from dotenv import load_dotenv
 import os
 import json
 from telegram import InputMediaPhoto
+from config.config import Config
 
-load_dotenv()
-ADMIN_IDS = [int(x) for x in os.getenv("ADMIN_IDS", "").split(",") if x] # deine Telegram-User-ID(s)
-CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
-CHANNEL_USERNAME = str(os.getenv("CHANNEL_USERNAME"))
+ADMIN_IDS = Config.ADMIN_IDS
+CHANNEL_ID = Config.CHANNEL_ID
+CHANNEL_USERNAME = Config.CHANNEL_USERNAME
 
 # ---------------------------
 # HELPERS

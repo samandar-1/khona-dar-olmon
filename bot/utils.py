@@ -4,12 +4,12 @@ from html import escape
 import os
 from bot import utils
 from telegram.constants import ChatMemberStatus
-from dotenv import load_dotenv
+from config.config import Config
 
 
-load_dotenv()
-CHANNEL_USERNAME = str(os.getenv("CHANNEL_USERNAME"))
-CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
+# load_dotenv()
+CHANNEL_USERNAME = Config.CHANNEL_USERNAME
+CHANNEL_ID = Config.CHANNEL_ID
 
 async def telegram_message_exists(bot, chat_id, message_id):
     try:

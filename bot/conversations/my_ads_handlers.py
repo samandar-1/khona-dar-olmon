@@ -1,14 +1,17 @@
+import json
+import os
+
+from bot import utils
+from bot.strings import MyAdsText
+from db.controllers.ad_controller import get_user_ads, get_ad, delete_ad, get_user_id_by_telegram
+from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto
 from telegram.ext import ContextTypes, CommandHandler, CallbackQueryHandler
-from db.controllers.ad_controller import get_user_ads, get_ad, delete_ad, get_user_id_by_telegram
-import json, os
-from dotenv import load_dotenv
-from bot.strings import MyAdsText, GeneralText
-from bot import utils
+from config.config import Config
 
-load_dotenv()
-CHANNEL_USERNAME = os.getenv("CHANNEL_USERNAME")
-CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
+
+CHANNEL_ID = Config.CHANNEL_ID
+CHANNEL_USERNAME = Config.CHANNEL_USERNAME
 
 # /show_my_ads Command
 async def show_my_ads(update: Update, context: ContextTypes.DEFAULT_TYPE):
