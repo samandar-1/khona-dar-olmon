@@ -62,8 +62,8 @@ class NewAdText:
     SELECTED_VERMIETUNG_ART = "✅ Намуди иҷора:"
 
     SELECT_AD_TYPE = "📢 Намуди эълонро интихоб кунед:"
-    AD_TYPE_GESUCH = "🔍 Ҷустуҷӯ"
-    AD_TYPE_ANGEBOT = "📢 Пешниҳод"
+    AD_TYPE_GESUCH = "🔴 Ҷустуҷӯ"
+    AD_TYPE_ANGEBOT = "🟢 Пешниҳод"
     SELECTED_AD_TYPE = "✅ Намуди эълон:"
 
     INPUT_CITY = "🏙 Номи шаҳрро ворид кунед:"
