@@ -45,6 +45,47 @@ async def admin_dashboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # ---------------------------
 # PENDING ADS
 # ---------------------------
+# async def admin_pending_ads(update: Update, context: ContextTypes.DEFAULT_TYPE):
+#     query = update.callback_query
+#     await query.answer()
+#
+#     if not is_admin(query.from_user.id):
+#         await query.message.reply_text(AdminText.NOT_ADMIN)
+#         return
+#
+#     await query.message.reply_text("🕓 Request Management:")
+#     requests = await get_pending()
+#     if not requests:
+#         await query.message.reply_text("✅ Keine offenen Anfragen.")
+#         return
+#
+#     for req in requests:
+#         ad = await get_ad(req.ad_id)
+#         if not ad:
+#             continue
+#
+#         text = await utils.generate_ad_text(ad)
+#         bilder = json.loads(ad.bilder) if ad.bilder else []
+#
+#         keyboard = [[
+#             InlineKeyboardButton("✅ Freigeben", callback_data=f"approve:{ad.id}"),
+#             InlineKeyboardButton("❌ Ablehnen", callback_data=f"reject:{ad.id}")
+#         ]]
+#         markup = InlineKeyboardMarkup(keyboard)
+#
+#         if bilder:
+#             media = [
+#                 InputMediaPhoto(
+#                     file_id,
+#                     caption=text if i == 0 else None,
+#                     parse_mode="HTML"
+#                 )
+#                 for i, file_id in enumerate(bilder)
+#             ]
+#             await query.message.reply_media_group(media)
+#             await query.message.reply_text("Aktion auswählen:", reply_markup=markup)
+#         else:
+#             await query.message.reply_text(text, parse_mode="HTML", reply_markup=markup)
 async def admin_pending_ads(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
@@ -59,11 +100,7 @@ async def admin_pending_ads(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.message.reply_text("✅ Keine offenen Anfragen.")
         return
 
-    for req in requests:
-        ad = await get_ad(req.ad_id)
-        if not ad:
-            continue
-
+    for ad in requests:
         text = await utils.generate_ad_text(ad)
         bilder = json.loads(ad.bilder) if ad.bilder else []
 
@@ -86,7 +123,6 @@ async def admin_pending_ads(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await query.message.reply_text("Aktion auswählen:", reply_markup=markup)
         else:
             await query.message.reply_text(text, parse_mode="HTML", reply_markup=markup)
-
 
 # ---------------------------
 # APPROVED ADS
@@ -173,7 +209,7 @@ async def admin_action_callback(update: Update, context: ContextTypes.DEFAULT_TY
     elif action == "reject":
         await reject_ad(ad_id)
 
-        desc = ad.description or ""
+        desc = ad.title or ""
         short_desc = desc[:50]
         await context.bot.send_message(
             ad.user.telegram_id,
@@ -184,12 +220,30 @@ async def admin_action_callback(update: Update, context: ContextTypes.DEFAULT_TY
     elif action == "delete":
         await reject_ad(ad_id)
 
-        desc = ad.description or ""
+        desc = ad.title or ""
         short_desc = desc[:50]
         await context.bot.send_message(
             ad.user.telegram_id,
             AdminText.YOUR_AD_REJECTED.format(short_desc)
         )
+
+        # Telegram Nachrichten löschen
+        if ad.telegram_message_id:
+
+            try:
+                msg_ids = json.loads(ad.telegram_message_id)
+                if isinstance(msg_ids, str):
+                    msg_ids = json.loads(msg_ids)
+            except Exception:
+                msg_ids = []
+
+            for msg_id in msg_ids:
+                try:
+                    await context.bot.delete_message(chat_id=CHANNEL_ID, message_id=msg_id)
+                except Exception as e:
+                    print(f"⚠️ Telegram delete failed msg_id={msg_id}: {e}")
+                    await query.edit_message_text(MyAdsText.ERROR_DELETE_MY_AD)
+
         await query.edit_message_text("🗑 Anzeige gelöscht.")
 
 #
