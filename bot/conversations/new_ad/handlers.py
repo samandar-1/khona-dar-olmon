@@ -6,7 +6,7 @@ from telegram.ext import ContextTypes
 from datetime import datetime
 from .states import NewAdState, MAX_ADS_PER_USER
 from db.controllers.ad_controller import create_ad  # unsere DB-Funktion
-from db.controllers.ad_request_controller import create_ad_request
+# from db.controllers.ad_request_controller import create_ad_request
 from db.controllers.user_controller import save_or_update_user
 from db.controllers.ad_controller import get_user_ads, get_user_id_by_telegram, count_user_ads
 from db.models import AdRequest
@@ -238,8 +238,7 @@ async def new_ad_finish(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     # Create request
-    await create_ad_request(user_id=user.id, ad_id=ad.id, action="create")
-
+    # await create_ad_request(user_id=user.id, ad_id=ad.id, action="create")
     await update.message.reply_text(NewAdText.AD_SAVED)
     context.user_data.clear()
     return ConversationHandler.END

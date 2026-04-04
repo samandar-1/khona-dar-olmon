@@ -36,6 +36,7 @@ async def get_approved_ads():
         return result.scalars().all()
 
 
+
 # -------- GET USER ADS --------
 async def get_user_ads(user_id: int):
     async with get_session() as session:
@@ -68,6 +69,8 @@ async def get_user_id_by_telegram(telegram_id: int) -> int | None:
 # -------- DELETE AD --------
 async def delete_ad(ad_id: int):
     async with get_session() as session:
-        await session.execute(delete(AdRequest).where(AdRequest.ad_id == ad_id))
+        # await session.execute(delete(AdRequest).where(AdRequest.ad_id == ad_id))
         await session.execute(delete(Ad).where(Ad.id == ad_id))
         await session.commit()
+
+
