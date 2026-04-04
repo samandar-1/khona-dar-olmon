@@ -145,15 +145,27 @@ async def admin_approved_ads(update: Update, context: ContextTypes.DEFAULT_TYPE)
     for ad in ads:
         text = await utils.generate_ad_text(ad, incl_status=True)
 
+        bilder = json.loads(ad.bilder) if ad.bilder else []
+
         keyboard = [[
             InlineKeyboardButton("🗑 Löschen", callback_data=f"delete:{ad.id}")
         ]]
+        markup = InlineKeyboardMarkup(keyboard)
 
-        await query.message.reply_text(
-            text,
-            parse_mode="HTML",
-            reply_markup=InlineKeyboardMarkup(keyboard)
-        )
+        if bilder:
+            media = [
+                InputMediaPhoto(
+                    file_id,
+                    caption=text if i == 0 else None,
+                    parse_mode="HTML"
+                )
+                for i, file_id in enumerate(bilder)
+            ]
+            await query.message.reply_media_group(media)
+            await query.message.reply_text("Aktion auswählen:", reply_markup=markup)
+        else:
+            await query.message.reply_text(text, parse_mode="HTML", reply_markup=markup)
+
 
 
 # ---------------------------
