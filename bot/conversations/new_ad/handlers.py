@@ -1,7 +1,7 @@
 import json
 from telegram.ext import ConversationHandler
 from db.database import AsyncSessionLocal
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto
 from telegram.ext import ContextTypes
 from datetime import datetime
 from .states import NewAdState, MAX_ADS_PER_USER
@@ -9,14 +9,14 @@ from db.controllers.ad_controller import create_ad  # unsere DB-Funktion
 # from db.controllers.ad_request_controller import create_ad_request
 from db.controllers.user_controller import save_or_update_user
 from db.controllers.ad_controller import get_user_ads, get_user_id_by_telegram, count_user_ads
-from db.models import AdRequest
 from bot.utils import bool_to_text, is_user_subscribed
 from bot.strings import GeneralText, NewAdText
 import os
 from config.config import Config
+from bot import utils
 
 CHANNEL_USERNAME = Config.CHANNEL_USERNAME
-
+ADMIN_IDS = Config.ADMIN_IDS
 
 # Schritt 1: /new_ad starten
 async def new_ad_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -240,5 +240,34 @@ async def new_ad_finish(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Create request
     # await create_ad_request(user_id=user.id, ad_id=ad.id, action="create")
     await update.message.reply_text(NewAdText.AD_SAVED)
+
+    await send_ad_to_admins(context.bot, ad)
+
     context.user_data.clear()
     return ConversationHandler.END
+
+
+async def send_ad_to_admins(bot, ad):
+    text = await utils.generate_ad_text(ad, incl_status=True)
+    bilder = json.loads(ad.bilder) if ad.bilder else []
+
+    keyboard = [[
+        InlineKeyboardButton("✅ Freigeben", callback_data=f"approve:{ad.id}"),
+        InlineKeyboardButton("❌ Ablehnen", callback_data=f"reject:{ad.id}")
+    ]]
+    markup = InlineKeyboardMarkup(keyboard)
+
+    for admin_id in ADMIN_IDS:
+        if bilder:
+            media = [
+                InputMediaPhoto(
+                    file_id,
+                    caption=text if i == 0 else None,
+                    parse_mode="HTML"
+                )
+                for i, file_id in enumerate(bilder)
+            ]
+            await bot.send_media_group(admin_id, media)
+            await bot.send_message(admin_id, "Aktion auswählen:", reply_markup=markup)
+        else:
+            await bot.send_message(admin_id, text, parse_mode="HTML", reply_markup=markup)

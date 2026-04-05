@@ -216,3 +216,4 @@ config/config_uz.env
 bot.db
 db/tajik.sqlite3
 db/uzbek2.sqlite3
+db/uzbek.sqlite3
