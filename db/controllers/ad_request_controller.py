@@ -2,7 +2,7 @@ from db.database import get_session
 from sqlalchemy.future import select
 from sqlalchemy import delete
 
-from db.models import AdRequest, Ad
+from db.models import  Ad
 import json
 
 

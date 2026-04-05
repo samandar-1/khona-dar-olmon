@@ -18,11 +18,12 @@ class User(Base):
     last_name = Column(String(128))
 
     ads = relationship("Ad", back_populates="user", cascade="all, delete")
-    ad_requests = relationship("AdRequest", back_populates="user")
+    # ad_requests = relationship("AdRequest", back_populates="user")
 
 class Ad(Base):
     __tablename__ = "ads"
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    __table_args__ = {'sqlite_autoincrement': True}
+    id = Column(Integer, primary_key=True, index=True)
 
     user_id = Column(Integer, ForeignKey("users.id"))
     title = Column(String, nullable=False)

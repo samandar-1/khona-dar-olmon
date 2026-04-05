@@ -1,7 +1,7 @@
 import json
 from sqlalchemy import delete, select, func
 from db.database import get_session
-from db.models import Ad, AdRequest, User
+from db.models import Ad, User
 from sqlalchemy.orm import selectinload
 
 # -------- CREATE AD --------

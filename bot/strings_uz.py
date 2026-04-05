@@ -19,6 +19,7 @@ class GeneralText:
     STATUS_APPROVED = "Kanaldа chop etildi"
     STATUS_PENDING = "Tekshiruvda"
 
+    AD_CREATE_TIME = "Elon sanasi"
     SUBSCRIBE_INFO = "❗ Botdan foydalanish uchun avval kanalga obuna bo‘ling."
     SUBSCRIBE_TO_CHANNEL = "📢 Kanalga obuna bo‘lish"
     SUBSCRIBED_TO_CHANNEL = "✅ Obuna bo‘ldim"

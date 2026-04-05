@@ -2,7 +2,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes, CallbackQueryHandler
 from db.controllers.ad_controller import get_ad, get_approved_ads
 from db.controllers.ad_request_controller import reject_ad, get_pending, approve_ad
-from db.models import AdRequest, Ad
+from db.models import Ad
 from db.database import AsyncSessionLocal
 from bot.strings import AdminText, GeneralText
 from bot import utils
@@ -96,6 +96,7 @@ async def admin_pending_ads(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await query.message.reply_text("🕓 Request Management:")
     requests = await get_pending()
+
     if not requests:
         await query.message.reply_text("✅ Keine offenen Anfragen.")
         return
@@ -136,7 +137,6 @@ async def admin_approved_ads(update: Update, context: ContextTypes.DEFAULT_TYPE)
         return
 
     await query.message.reply_text("✅ Approved Ads:")
-
     ads = await get_approved_ads()
     if not ads:
         await query.message.reply_text("ℹ️ Keine freigegebenen Anzeigen.")

@@ -2,11 +2,13 @@ from bot.strings import GeneralText, NewAdText
 # from telegram.helpers import escape_markdown
 from html import escape
 import os
+from zoneinfo import ZoneInfo
 from bot import utils
 from telegram.constants import ChatMemberStatus
 from config.config import Config
 
-
+berlin = ZoneInfo("Europe/Berlin")
+utc = ZoneInfo("UTC")
 # load_dotenv()
 CHANNEL_USERNAME = Config.CHANNEL_USERNAME
 CHANNEL_ID = Config.CHANNEL_ID
@@ -54,7 +56,7 @@ def hashtag_2nd_word(text: str) -> str:
     return " ".join(parts)
 
 
-async def generate_ad_text(ad, incl_status=False, incl_create_time=True):
+async def generate_ad_text(ad, incl_status=False):
     contact_name = get_contact_text(ad.user)
 
     text = f"""
@@ -73,11 +75,14 @@ async def generate_ad_text(ad, incl_status=False, incl_create_time=True):
 <b>{escape(GeneralText.BESCHREIBUNG)}:</b>
 {escape(ad.title)}
 
+<b>{escape(GeneralText.AD_CREATE_TIME)}:</b>
+{escape(ad.created_time.replace(tzinfo=utc).astimezone(berlin).strftime("%d.%m.%Y %H:%M"))}
+
 <b>{escape(GeneralText.KONTAKT)}:</b> {escape(contact_name)}
 <a href="tg://user?id={ad.user.telegram_id}">{escape(GeneralText.DIREKT_ANSCHREIBEN)}</a>
            """
-    if incl_create_time:
-        text += escape(f'\n{GeneralText.AD_CREATE_TIME}: {ad.created_time.strftime("%d.%m.%Y %H:%M")}')
+    # if incl_create_time:
+    #     text += escape(f'\n{GeneralText.AD_CREATE_TIME}: {ad.created_time.strftime("%d.%m.%Y %H:%M")}')
     if incl_status:
         if ad.approved:
             text += escape(f"\n\n✅ {GeneralText.STATUS}: {GeneralText.STATUS_APPROVED}")
