@@ -18,6 +18,7 @@ class GeneralText:
     STATUS = "Статус"
     STATUS_APPROVED = "Дар канал нашр шудааст"
     STATUS_PENDING = "Дар санҷиш"
+    AD_CREATE_TIME = "Санаи эълон"
 
     SUBSCRIBE_INFO = "❗ Барои истифодаи бот, аввал бояд ба канал обуна шавед."
     SUBSCRIBE_TO_CHANNEL = "📢 Ба канал обуна шудан"

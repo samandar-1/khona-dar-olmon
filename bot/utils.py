@@ -54,7 +54,7 @@ def hashtag_2nd_word(text: str) -> str:
     return " ".join(parts)
 
 
-async def generate_ad_text(ad, incl_status=False):
+async def generate_ad_text(ad, incl_status=False, incl_create_time=True):
     contact_name = get_contact_text(ad.user)
 
     text = f"""
@@ -76,6 +76,8 @@ async def generate_ad_text(ad, incl_status=False):
 <b>{escape(GeneralText.KONTAKT)}:</b> {escape(contact_name)}
 <a href="tg://user?id={ad.user.telegram_id}">{escape(GeneralText.DIREKT_ANSCHREIBEN)}</a>
            """
+    if incl_create_time:
+        text += escape(f'\n{GeneralText.AD_CREATE_TIME}: {ad.created_time.strftime("%d.%m.%Y %H:%M")}')
     if incl_status:
         if ad.approved:
             text += escape(f"\n\n✅ {GeneralText.STATUS}: {GeneralText.STATUS_APPROVED}")

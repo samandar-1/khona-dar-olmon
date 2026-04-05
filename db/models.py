@@ -1,7 +1,13 @@
-from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, Float, Date, JSON, ARRAY
+from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, Float, Date, JSON, ARRAY, DateTime, Sequence
+
+from datetime import datetime, timezone
 
 from sqlalchemy.orm import relationship, declarative_base
 Base = declarative_base()
+
+# Sequence ohne CYCLE → IDs werden nie wiederverwendet
+ad_id_seq = Sequence("ad_id_seq", start=1, increment=1)
+
 
 class User(Base):
     __tablename__ = "users"
@@ -39,6 +45,7 @@ class Ad(Base):
     approved = Column(Boolean, default=False)
     telegram_message_id = Column(JSON, nullable=True)
 
+    created_time = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     user = relationship("User", back_populates="ads", lazy="selectin")
 
 
@@ -46,14 +53,14 @@ class Ad(Base):
 # ----------------------------
 # AdRequest Tabelle (Admin-Freigabe)
 # ----------------------------
-class AdRequest(Base):
-    __tablename__ = "ad_requests"
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-
-    user_id = Column(Integer, ForeignKey("users.id"))
-    ad_id = Column(Integer, ForeignKey("ads.id"), nullable=True)  # falls Änderung einer bestehenden Anzeige
-    action = Column(String, nullable=False)  # "create" oder "update"
-
-    status = Column(String, default="pending")  # "pending", "approved", "rejected"
-
-    user = relationship("User", back_populates="ad_requests")
+# class AdRequest(Base):
+#     __tablename__ = "ad_requests"
+#     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+#
+#     user_id = Column(Integer, ForeignKey("users.id"))
+#     ad_id = Column(Integer, ForeignKey("ads.id"), nullable=True)  # falls Änderung einer bestehenden Anzeige
+#     action = Column(String, nullable=False)  # "create" oder "update"
+#
+#     status = Column(String, default="pending")  # "pending", "approved", "rejected"
+#
+#     user = relationship("User", back_populates="ad_requests")
