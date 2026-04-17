@@ -1,11 +1,11 @@
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
-from db.database import AsyncSessionLocal
+from db.database import get_session
 from db.models import User
 
 
 async def save_or_update_user(telegram_user):
-    async with AsyncSessionLocal() as session:
+    async with get_session() as session:
         stmt = select(User).where(User.telegram_id == telegram_user.id)
         result = await session.execute(stmt)
         user = result.scalars().first()

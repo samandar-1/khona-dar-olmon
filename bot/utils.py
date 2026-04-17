@@ -2,14 +2,16 @@ from bot.strings import GeneralText, NewAdText
 # from telegram.helpers import escape_markdown
 from html import escape
 import os
+from zoneinfo import ZoneInfo
 from bot import utils
 from telegram.constants import ChatMemberStatus
-from dotenv import load_dotenv
+from config.config import Config
 
-
-load_dotenv()
-CHANNEL_USERNAME = str(os.getenv("CHANNEL_USERNAME"))
-CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
+berlin = ZoneInfo("Europe/Berlin")
+utc = ZoneInfo("UTC")
+# load_dotenv()
+CHANNEL_USERNAME = Config.CHANNEL_USERNAME
+CHANNEL_ID = Config.CHANNEL_ID
 
 async def telegram_message_exists(bot, chat_id, message_id):
     try:
@@ -58,7 +60,7 @@ async def generate_ad_text(ad, incl_status=False):
     contact_name = get_contact_text(ad.user)
 
     text = f"""
-<b>{escape(hashtag_2nd_word(ad.vermietung_art))} | {escape(hashtag_2nd_word(ad.type.upper()))}  ID: {ad.id}</b>
+<b>{escape(hashtag_2nd_word(ad.type.upper()))}  |  {escape(hashtag_2nd_word(ad.vermietung_art))} | ID: {ad.id}</b>
 
 <b>{escape(GeneralText.STADT)}:</b> #{escape(ad.stadt) or '-'}
 <b>{escape(GeneralText.FLAECHE)}:</b> {escape(ad.raumflaeche) or '-'} m²
@@ -73,9 +75,14 @@ async def generate_ad_text(ad, incl_status=False):
 <b>{escape(GeneralText.BESCHREIBUNG)}:</b>
 {escape(ad.title)}
 
+<b>{escape(GeneralText.AD_CREATE_TIME)}:</b>
+{escape(ad.created_time.replace(tzinfo=utc).astimezone(berlin).strftime("%d.%m.%Y %H:%M"))}
+
 <b>{escape(GeneralText.KONTAKT)}:</b> {escape(contact_name)}
 <a href="tg://user?id={ad.user.telegram_id}">{escape(GeneralText.DIREKT_ANSCHREIBEN)}</a>
            """
+    # if incl_create_time:
+    #     text += escape(f'\n{GeneralText.AD_CREATE_TIME}: {ad.created_time.strftime("%d.%m.%Y %H:%M")}')
     if incl_status:
         if ad.approved:
             text += escape(f"\n\n✅ {GeneralText.STATUS}: {GeneralText.STATUS_APPROVED}")
@@ -84,18 +91,24 @@ async def generate_ad_text(ad, incl_status=False):
         else:
             text += escape(f"\n\n⏳ {GeneralText.STATUS}: {GeneralText.STATUS_PENDING}")
     else:
-        text += f'\n\n📢 <a href="https://t.me/{CHANNEL_USERNAME}">Xoнa дар Олмон. Abbonieren</a>'
+        # text += f'\n\n📢 <a href="https://t.me/{CHANNEL_USERNAME}">Xoнa дар Олмон. Abbonieren</a>'
+        text += f'\n\n📢 @{CHANNEL_USERNAME}'
     return text
 
 
 async def is_user_subscribed(bot, user_id: int) -> bool:
+    print("test__________________________________________________")
+    print(CHANNEL_ID)
     try:
         member = await bot.get_chat_member(CHANNEL_ID, user_id)
-        print("test__________________________________________________")
+        print(user_id)
+        print(member.status)
+        print(ChatMemberStatus.ADMINISTRATOR)
         return member.status in (
             ChatMemberStatus.MEMBER,
             ChatMemberStatus.ADMINISTRATOR,
             ChatMemberStatus.OWNER,
         )
-    except:
+    except Exception as e:
+        print(e)
         return False
