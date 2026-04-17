@@ -213,3 +213,8 @@ __pycache__/
 *.sqlite
 .env
 bot.db
+config/config_tj.env
+config/config_uz.env
+db/tajik.sqlite3
+db/uzbek.sqlite3
+db/uzbek2.sqlite3
