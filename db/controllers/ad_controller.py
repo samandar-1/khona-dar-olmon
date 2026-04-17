@@ -41,7 +41,9 @@ async def get_approved_ads():
 async def get_user_ads(user_id: int):
     async with get_session() as session:
         result = await session.execute(
-            select(Ad).where(Ad.user_id == user_id)
+            select(Ad)
+            .options(selectinload(Ad.user))  # ← ergänzt
+            .where(Ad.user_id == user_id)
         )
         ads = result.scalars().all()
         return ads

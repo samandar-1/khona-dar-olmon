@@ -4,13 +4,15 @@ from db.controllers.ad_controller import get_ad, get_approved_ads
 from db.controllers.ad_request_controller import reject_ad, get_pending, approve_ad
 from db.models import Ad
 from db.database import AsyncSessionLocal
-from bot.strings import AdminText, GeneralText
+from bot.strings import AdminText, GeneralText, MyAdsText
 from bot import utils
 from sqlalchemy import delete
 import os
 import json
 from telegram import InputMediaPhoto
 from config.config import Config
+import logging
+logger = logging.getLogger(__name__)
 
 ADMIN_IDS = Config.ADMIN_IDS
 CHANNEL_ID = Config.CHANNEL_ID
@@ -188,6 +190,7 @@ async def admin_action_callback(update: Update, context: ContextTypes.DEFAULT_TY
         return
 
     if action == "approve":
+
         text = await utils.generate_ad_text(ad)
         bilder = json.loads(ad.bilder) if ad.bilder else []
 
@@ -215,7 +218,7 @@ async def admin_action_callback(update: Update, context: ContextTypes.DEFAULT_TY
         )
 
         await query.edit_message_text("✅ Anzeige freigegeben.")
-
+        logger.info("Anzeige freigegeben | ad_id=%s | admin=%s", ad_id, query.from_user.id)
 
 
     elif action == "reject":
@@ -228,6 +231,7 @@ async def admin_action_callback(update: Update, context: ContextTypes.DEFAULT_TY
             AdminText.YOUR_AD_REJECTED.format(short_desc)
         )
         await query.edit_message_text("❌ Anzeige abgelehnt.")
+        logger.info("Anzeige abgelehnt | ad_id=%s | admin=%s", ad_id, query.from_user.id)
 
     elif action == "delete":
         await reject_ad(ad_id)
@@ -252,8 +256,11 @@ async def admin_action_callback(update: Update, context: ContextTypes.DEFAULT_TY
             for msg_id in msg_ids:
                 try:
                     await context.bot.delete_message(chat_id=CHANNEL_ID, message_id=msg_id)
+                    logger.info("Anzeige gelöscht | ad_id=%s | admin=%s", ad_id, query.from_user.id)
+
                 except Exception as e:
                     print(f"⚠️ Telegram delete failed msg_id={msg_id}: {e}")
+                    logger.error("Telegram delete fehlgeschlagen | msg_id=%s | error=%s", msg_id, e)
                     await query.edit_message_text(MyAdsText.ERROR_DELETE_MY_AD)
 
         await query.edit_message_text("🗑 Anzeige gelöscht.")

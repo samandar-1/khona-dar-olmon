@@ -6,6 +6,9 @@ from zoneinfo import ZoneInfo
 from bot import utils
 from telegram.constants import ChatMemberStatus
 from config.config import Config
+import logging
+logger = logging.getLogger(__name__)
+
 
 berlin = ZoneInfo("Europe/Berlin")
 utc = ZoneInfo("UTC")
@@ -60,7 +63,7 @@ async def generate_ad_text(ad, incl_status=False):
     contact_name = get_contact_text(ad.user)
 
     text = f"""
-<b>{escape(hashtag_2nd_word(ad.type.upper()))}  |  {escape(hashtag_2nd_word(ad.vermietung_art))} | ID: {ad.id}</b>
+<b>{escape(hashtag_2nd_word(ad.type.upper()))}  |  {escape(hashtag_2nd_word(ad.vermietung_art))} | ID: {escape(str(ad.id))}</b>
 
 <b>{escape(GeneralText.STADT)}:</b> #{escape(ad.stadt) or '-'}
 <b>{escape(GeneralText.FLAECHE)}:</b> {escape(ad.raumflaeche) or '-'} m²
@@ -97,13 +100,9 @@ async def generate_ad_text(ad, incl_status=False):
 
 
 async def is_user_subscribed(bot, user_id: int) -> bool:
-    print("test__________________________________________________")
-    print(CHANNEL_ID)
     try:
         member = await bot.get_chat_member(CHANNEL_ID, user_id)
-        print(user_id)
-        print(member.status)
-        print(ChatMemberStatus.ADMINISTRATOR)
+        logger.debug("Abo-Check | user=%s | status=%s", user_id, member.status)
         return member.status in (
             ChatMemberStatus.MEMBER,
             ChatMemberStatus.ADMINISTRATOR,
@@ -111,4 +110,6 @@ async def is_user_subscribed(bot, user_id: int) -> bool:
         )
     except Exception as e:
         print(e)
+        logger.error("Abo-Check fehlgeschlagen | user=%s | error=%s", user_id, e)
+
         return False

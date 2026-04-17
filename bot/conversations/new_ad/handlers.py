@@ -14,6 +14,8 @@ from bot.strings import GeneralText, NewAdText
 import os
 from config.config import Config
 from bot import utils
+import logging
+logger = logging.getLogger(__name__)
 
 CHANNEL_USERNAME = Config.CHANNEL_USERNAME
 ADMIN_IDS = Config.ADMIN_IDS
@@ -21,8 +23,11 @@ ADMIN_IDS = Config.ADMIN_IDS
 # Schritt 1: /new_ad starten
 async def new_ad_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     tg_id = update.effective_user.id
+    logger.info("new_ad gestartet | user=%s", tg_id)
+
     subscribed = await is_user_subscribed(context.bot, tg_id)
     if not subscribed:
+        logger.warning("User nicht abonniert | user=%s", tg_id)
         keyboard = InlineKeyboardMarkup([
             [InlineKeyboardButton(GeneralText.SUBSCRIBE_TO_CHANNEL, url=f"https://t.me/{CHANNEL_USERNAME}")],
             [InlineKeyboardButton(GeneralText.SUBSCRIBED_TO_CHANNEL, callback_data="check_sub")]
@@ -39,6 +44,7 @@ async def new_ad_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ads_count = await count_user_ads(user_id)
 
     if ads_count >= MAX_ADS_PER_USER:
+        logger.warning("User hat zu viele Anzeigen | user=%s", tg_id)
         await update.message.reply_text(NewAdText.AD_LIMIT_REACHED.format(MAX_ADS_PER_USER))
         return ConversationHandler.END
 
@@ -215,6 +221,8 @@ async def new_ad_bilder(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # Anzeige abschließen
 async def new_ad_finish(update: Update, context: ContextTypes.DEFAULT_TYPE):
     tg_user = update.effective_user
+
+
     data = context.user_data.copy()
 
     # Save user
@@ -242,12 +250,14 @@ async def new_ad_finish(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(NewAdText.AD_SAVED)
 
     await send_ad_to_admins(context.bot, ad)
-
+    logger.info("Neue Anzeige erstellt | user=%s | titel=%s", tg_user.id, context.user_data.get("title"))
     context.user_data.clear()
     return ConversationHandler.END
 
 
 async def send_ad_to_admins(bot, ad):
+    logger.info("Anzeige an Admins gesendet | ad_id=%s | user=%s", ad.id, ad.user_id)
+
     text = await utils.generate_ad_text(ad, incl_status=True)
     bilder = json.loads(ad.bilder) if ad.bilder else []
 

@@ -8,7 +8,8 @@ from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto
 from telegram.ext import ContextTypes, CommandHandler, CallbackQueryHandler
 from config.config import Config
-
+import logging
+logger = logging.getLogger(__name__)
 
 CHANNEL_ID = Config.CHANNEL_ID
 CHANNEL_USERNAME = Config.CHANNEL_USERNAME
@@ -51,36 +52,33 @@ async def delete_ad_callback(update: Update, context: ContextTypes.DEFAULT_TYPE)
     tg_id = query.from_user.id
     user_id = await get_user_id_by_telegram(tg_id)
 
-    print("userid::", user_id)
-    print("tg::", tg_id)
+    logger.info("Ad-Löschung angefragt | ad_id=%s | user=%s", ad_id, tg_id)
+
     ad = await get_ad(ad_id)
     if not ad or ad.user_id != user_id:
         await query.edit_message_text(MyAdsText.GET_AD_ERROR)
         return
-    print("test1")
     # Telegram Nachrichten löschen
     if ad.telegram_message_id:
-        print("test2")
 
         try:
             msg_ids = json.loads(ad.telegram_message_id)
             if isinstance(msg_ids, str):
-                print("test3")
                 msg_ids = json.loads(msg_ids)
         except Exception:
             msg_ids = []
 
         for msg_id in msg_ids:
             try:
-                print("test4")
                 await context.bot.delete_message(chat_id=CHANNEL_ID, message_id=msg_id)
             except Exception as e:
                 print(f"⚠️ Telegram delete failed msg_id={msg_id}: {e}")
+                logger.error("Telegram delete fehlgeschlagen | msg_id=%s | error=%s", msg_id, e)
                 await query.edit_message_text(MyAdsText.ERROR_DELETE_MY_AD)
-
 
     # DB löschen
     await delete_ad(ad_id)
+    logger.info("Ad erfolgreich gelöscht | ad_id=%s", ad_id)
     await query.edit_message_text(MyAdsText.AD_DELETED)
 
 # Handler

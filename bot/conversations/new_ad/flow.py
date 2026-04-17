@@ -28,4 +28,5 @@ new_ad_conv = ConversationHandler(
 
     fallbacks=[CommandHandler("new_ad", new_ad_start)],
     allow_reentry=True,
+    per_message=False,
 )
