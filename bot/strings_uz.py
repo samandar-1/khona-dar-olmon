@@ -51,7 +51,7 @@ class NewAdText:
         "🏠 Ijara turini tanlang:"
     )
 
-    VERMIETUNG_ART_WG = "🏘 Xona (WG)"
+    VERMIETUNG_ART_WG = "🚪Xona (WG)"
     VERMIETUNG_ART_WOHNUNG = "🏢 Kvartira"
     VERMIETUNG_ART_HAUS = "🏡 Uy"
     VERMIETUNG_ART_PARKPLATZ = "🅿 Avtoturargoh"

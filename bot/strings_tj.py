@@ -55,7 +55,7 @@ class NewAdText:
         "🏠 Намуди иҷораро интихоб кунед:"
     )
 
-    VERMIETUNG_ART_WG = "🏘 Ҳуҷра (WG)"
+    VERMIETUNG_ART_WG = "🚪 Ҳуҷра (WG)"
     VERMIETUNG_ART_WOHNUNG = "🏢 Хона (Wohnung)"
     VERMIETUNG_ART_HAUS = "🏡 Ҳавли (Haus)"
     VERMIETUNG_ART_PARKPLATZ = "🅿 Ҷойи мошин"
