@@ -1,0 +1,18 @@
+services:
+  bot-tj:
+    build: .
+    container_name: bot-tj
+    restart: always
+    command: python start_tj.py
+    volumes:
+      - ./db/tajik.sqlite3:/app/db/tajik.sqlite3
+      - ./config/config_tj.env:/app/config/config_tj.env
+
+  bot-uz:
+    build: .
+    container_name: bot-uz
+    restart: always
+    command: python start_uz.py
+    volumes:
+      - ./db/uzbek.sqlite3:/app/db/uzbek.sqlite3
+      - ./config/config_uz.env:/app/config/config_uz.env
