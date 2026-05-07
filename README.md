@@ -3,11 +3,11 @@
 This project contains **two Telegram bots** for housing advertisements in Germany, created specifically for Central Asian communities:
 
 * 🇺🇿 Uzbek community:
-     Bot: https://t.me/uybor_de_bot
-     Channel: https://t.me/uybor_de
+     * Bot: https://t.me/uybor_de_bot
+     * Channel: https://t.me/uybor_de
 * 🇹🇯 Tajik community: 
-     Bot: https://t.me/khona_dar_olmon_bot
-     Channel: https://t.me/khona_dar_olmon
+     * Bot: https://t.me/khona_dar_olmon_bot
+     * Channel: https://t.me/khona_dar_olmon
 
 Each bot has its own Telegram channel where approved apartment and room advertisements are published.
 
